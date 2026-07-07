@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Feedback Form</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f4f5f7;
+    margin: 0;
+    padding: 0;
+  }
+  .topbar {
+    background: #ffffff;
+    border-bottom: 1px solid #eee;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .topbar .logo-dots {
+    display: inline-grid;
+    grid-template-columns: repeat(2, 6px);
+    grid-template-rows: repeat(2, 6px);
+    gap: 3px;
+  }
+  .topbar .logo-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #1a1a1a;
+  }
+  .topbar .logo-dots span:nth-child(2) {
+    background: #f2c230;
+  }
+  .topbar .logo-text {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
+  }
+  .page-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 48px 16px 60px;
+  }
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    padding: 36px;
+    max-width: 520px;
+    width: 100%;
+    border: 1px solid #f0f0f0;
+  }
+  .card-header {
+    margin-bottom: 24px;
+  }
+  .card-header .badge {
+    display: inline-block;
+    background: #fdf1cc;
+    color: #8a6b00;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0 0 6px;
+    color: #1a1a1a;
+    letter-spacing: -0.3px;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: #6b6b6b;
+    margin: 0;
+  }
+  .field {
+    margin-bottom: 24px;
+  }
+  label.field-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #1a1a1a;
+  }
+  .required {
+    color: #d64545;
+  }
+  .optional {
+    color: #888;
+    font-weight: 400;
+  }
+  .radio-group {
+    display: flex;
+    gap: 10px;
+  }
+  .radio-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1.5px solid #e2e2e2;
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .radio-option:hover {
+    border-color: #f2c230;
+  }
+  .radio-option input {
+    accent-color: #f2c230;
+  }
+  .radio-option.selected {
+    border-color: #f2c230;
+    background: #fdf6e0;
+  }
+  .rating-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  input[type="range"] {
+    flex: 1;
+    accent-color: #f2c230;
+  }
+  .rating-value {
+    font-size: 16px;
+    font-weight: 600;
+    min-width: 24px;
+    text-align: center;
+  }
+  .rating-scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+  }
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #d9d9d9;
+    font-family: inherit;
+    font-size: 14px;
+    min-height: 90px;
+  }
+  textarea:focus, input:focus {
+    outline: none;
+    border-color: #1a1a1a;
+  }
+  button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    background: #f2c230;
+    color: #1a1a1a;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  button:hover {
+    background: #e6b620;
+  }
+  button .arrow-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    color: #f2c230;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  #confirm-msg {
+    display: none;
+    text-align: center;
+    color: #1a7a3c;
+    font-size: 14px;
+    margin-top: 14px;
+  }
+  #error-msg {
+    display: none;
+    text-align: center;
+    color: #d64545;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  #thank-you-state {
+    display: none;
+    text-align: center;
+    padding: 32px 8px;
+  }
+  #thank-you-state .check-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #fdf6e0;
+    color: #f2c230;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 16px;
+  }
+  #thank-you-text {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="logo-dots"><span></span><span></span><span></span><span></span></span>
+  <span class="logo-text">emitrr</span>
+</div>
+<div class="page-wrap">
+<div class="card">
+  <div class="card-header">
+    <span class="badge">Feedback</span>
+    <h1>Support feedback</h1>
+    <p class="subtitle">Help us improve — it only takes a minute.</p>
+  </div>
+  <form id="feedback-form">
+    <div class="field">
+      <label class="field-label">Was your issue fully resolved? <span class="required">*</span></label>
+      <div class="radio-group">
+        <label class="radio-option" data-option>
+          <input type="radio" name="resolved" value="Yes"> Yes
+        </label>
+        <label class="radio-option" data-option>
+          <input type="radio" name="resolved" value="Partially"> Partially
+        </label>
+        <label class="radio-option" data-option>
+          <input type="radio" name="resolved" value="No"> No
+        </label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">How satisfied were you with the support you received? <span class="required">*</span></label>
+      <div class="rating-row">
+        <input type="range" id="satisfaction" name="satisfaction" min="0" max="10" step="1" value="5" required>
+        <span class="rating-value" id="satisfaction-out">5</span>
+      </div>
+      <div class="rating-scale-labels">
+        <span>0 - Not at all satisfied</span>
+        <span>10 - Extremely satisfied</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label">What was the reason for your rating? <span class="optional">(optional)</span></label>
+      <textarea id="reason" name="reason" placeholder="Tell us more about your experience"></textarea>
+    </div>
+
+    <button type="submit">Submit feedback <span class="arrow-circle">&rarr;</span></button>
+    <p id="error-msg">Please select whether your issue was resolved.</p>
+    <p id="confirm-msg">Thanks for your feedback!</p>
+  </form>
+
+  <div id="thank-you-state">
+    <div class="check-circle">&#10003;</div>
+    <p id="thank-you-text">Thank You for your review, we'll work on your feedback</p>
+  </div>
+</div>
+</div>
+
+<script>
+  const slider = document.getElementById('satisfaction');
+  const out = document.getElementById('satisfaction-out');
+  slider.addEventListener('input', () => { out.textContent = slider.value; });
+
+  document.querySelectorAll('.radio-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+  });
+
+  // ---- Score-based redirect config ----
+  const REDIRECT_CONFIG = {
+    highScoreMin: 8,   // 8, 9, or 10 -> send to G2 review page
+    g2Url: 'https://www.g2.com/products/emitrr/review_modalities/new',
+    redirectDelayMs: 600 // brief pause before sending high scorers to G2
+  };
+
+  document.getElementById('feedback-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const resolved = document.querySelector('input[name="resolved"]:checked');
+    const errorMsg = document.getElementById('error-msg');
+    const confirmMsg = document.getElementById('confirm-msg');
+
+    if (!resolved) {
+      errorMsg.style.display = 'block';
+      confirmMsg.style.display = 'none';
+      return;
+    }
+
+    errorMsg.style.display = 'none';
+
+    const score = parseInt(slider.value, 10);
+    const data = {
+      resolved: resolved.value,
+      satisfaction: score,
+      reason: document.getElementById('reason').value
+    };
+
+    console.log('Form submitted:', data);
+
+    if (score >= REDIRECT_CONFIG.highScoreMin) {
+      // High score: brief thank-you, then off to leave a G2 review
+      confirmMsg.textContent = 'Thanks! Taking you to leave a review...';
+      confirmMsg.style.display = 'block';
+      setTimeout(() => {
+        window.location.href = REDIRECT_CONFIG.g2Url;
+      }, REDIRECT_CONFIG.redirectDelayMs);
+    } else {
+      // Lower score: replace the form content with the thank-you message
+      document.getElementById('feedback-form').style.display = 'none';
+      document.querySelector('.card-header').style.display = 'none';
+      document.getElementById('thank-you-state').style.display = 'block';
+    }
+  });
+</script>
+</body>
+</html>
