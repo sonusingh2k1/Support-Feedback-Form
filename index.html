@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Support Feedback Form</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -173,14 +174,11 @@
     font-size: 13px;
     margin-top: 10px;
   }
-  input[type="email"] {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #d9d9d9;
-    font-family: inherit;
-    font-size: 14px;
+  #signed-in-as {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #1a7a3c;
+    font-weight: 600;
   }
   #email-error-msg {
     display: none;
@@ -285,8 +283,9 @@
     </div>
 
     <div class="field" id="email-field" style="display:none;">
-      <label class="field-label">Your email <span class="required">*</span></label>
-      <input type="email" id="email" name="email" placeholder="you@example.com" required>
+      <label class="field-label">Confirm your identity <span class="required">*</span></label>
+      <div id="google-signin-btn"></div>
+      <p id="signed-in-as" style="display:none;"></p>
     </div>
 
     <div class="field" id="reason-field" style="display:none;">
@@ -316,6 +315,55 @@
 </div>
 
 <script>
+  // ---- Google Sign-In config ----
+  const GOOGLE_CONFIG = {
+    clientId: 'PASTE_YOUR_GOOGLE_OAUTH_CLIENT_ID_HERE'
+  };
+
+  let verifiedEmail = null;
+
+  function decodeJwt(token) {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = decodeURIComponent(
+        atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
+          .split('')
+          .map(c => '%' + c.charCodeAt(0).toString(16).padStart(2, '0'))
+          .join('')
+      );
+      return JSON.parse(decoded);
+    } catch (err) {
+      console.error('Failed to decode Google credential:', err);
+      return null;
+    }
+  }
+
+  function handleGoogleCredential(response) {
+    const payload = decodeJwt(response.credential);
+    if (payload && payload.email) {
+      verifiedEmail = payload.email;
+      document.getElementById('signed-in-as').textContent = 'Signed in as ' + verifiedEmail;
+      document.getElementById('signed-in-as').style.display = 'block';
+      document.getElementById('google-signin-btn').style.display = 'none';
+      document.getElementById('email-error-msg').style.display = 'none';
+    }
+  }
+
+  window.onload = function() {
+    if (window.google && GOOGLE_CONFIG.clientId.indexOf('PASTE_') !== 0) {
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CONFIG.clientId,
+        callback: handleGoogleCredential
+      });
+      google.accounts.id.renderButton(
+        document.getElementById('google-signin-btn'),
+        { theme: 'outline', size: 'large', width: 260 }
+      );
+    } else {
+      console.warn('Google Sign-In skipped: GOOGLE_CONFIG.clientId is not set.');
+    }
+  };
+
   // ---- Build the 1-10 rating boxes with a red -> yellow -> green gradient ----
   const RED = [231, 76, 60];
   const YELLOW = [242, 194, 48];
@@ -419,20 +467,20 @@
   }
 
   document.getElementById('submit-rating-btn').addEventListener('click', function() {
-    const email = document.getElementById('email').value.trim();
     const emailErrorMsg = document.getElementById('email-error-msg');
 
-    if (!isValidEmail(email)) {
+    if (!verifiedEmail) {
+      emailErrorMsg.textContent = 'Please sign in with Google to continue.';
       emailErrorMsg.style.display = 'block';
       return;
     }
     emailErrorMsg.style.display = 'none';
 
-    currentSubmissionEmail = email;
+    currentSubmissionEmail = verifiedEmail;
 
     logToSheet({
       date: formattedDate(),
-      email: email,
+      email: verifiedEmail,
       rating: selectedScore,
       reason: '',
       g2Clicked: 'No'
@@ -458,7 +506,6 @@
     const errorMsg = document.getElementById('error-msg');
     const emailErrorMsg = document.getElementById('email-error-msg');
     const confirmMsg = document.getElementById('confirm-msg');
-    const email = document.getElementById('email').value.trim();
 
     if (selectedScore === null) {
       errorMsg.style.display = 'block';
@@ -466,19 +513,21 @@
       return;
     }
 
-    if (!isValidEmail(email)) {
+    if (!verifiedEmail) {
+      emailErrorMsg.textContent = 'Please sign in with Google to continue.';
       emailErrorMsg.style.display = 'block';
       return;
     }
 
     errorMsg.style.display = 'none';
     emailErrorMsg.style.display = 'none';
+    currentSubmissionEmail = verifiedEmail;
 
     const reason = document.getElementById('reason').value.trim();
 
     logToSheet({
       date: formattedDate(),
-      email: email,
+      email: verifiedEmail,
       rating: selectedScore,
       reason: reason,
       g2Clicked: 'No'
