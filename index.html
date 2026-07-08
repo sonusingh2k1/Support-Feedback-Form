@@ -310,7 +310,7 @@
     <div class="check-circle">&#10003;</div>
     <p id="g2-inline-title">Thank you for your rating!</p>
     <p id="g2-inline-subtitle">Could you take 5 mins to leave us a review?</p>
-    <a id="g2-review-btn" href="#" target="_blank" rel="noopener">Leave Us a Review On G2</a>
+    <a id="g2-review-btn" href="https://www.g2.com/products/emitrr/reviews" target="_blank" rel="noopener">Leave Us a Review On G2</a>
   </div>
 </div>
 </div>
@@ -437,6 +437,8 @@
       reason: '',
       g2Clicked: 'No'
     });
+
+    document.getElementById('g2-review-btn').href = REDIRECT_CONFIG.g2Url;
 
     // Replace the form content in-card with the G2 review state (same pattern as the low-score thank-you state)
     document.getElementById('feedback-form').style.display = 'none';
