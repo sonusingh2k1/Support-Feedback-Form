@@ -375,10 +375,10 @@
   // ---- Google Sheet logging config ----
   // Paste the Apps Script Web App URL here (see setup instructions).
   const SHEET_CONFIG = {
-    scriptUrl: 'https://script.google.com/macros/s/AKfycbwNW_mPuOGzQEnZaeoPTiRYM-XD-gQi4ivi-Ta7sXhLjGBETOaUGvJk7nv6AO_INGiJIA/exec'
+    scriptUrl: 'https://script.google.com/macros/s/AKfycbzaY7SZlSYXY4kWSJSA_bJqdX-3QLE2-qyStjHUrrh6sJHDgNy9W-RwpaaZYuTxH9FSbw/exec'
   };
 
-  let currentSubmissionId = null;
+  let currentSubmissionEmail = null;
 
   function logToSheet(payload) {
     if (!SHEET_CONFIG.scriptUrl || SHEET_CONFIG.scriptUrl.indexOf('PASTE_') === 0) {
@@ -395,6 +395,14 @@
 
   function isValidEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  function formattedDate() {
+    const d = new Date();
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
   }
 
   for (let i = 0; i <= 10; i++) {
@@ -454,11 +462,10 @@
     }
     emailErrorMsg.style.display = 'none';
 
-    currentSubmissionId = 'sub_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    currentSubmissionEmail = email;
 
     logToSheet({
-      id: currentSubmissionId,
-      date: new Date().toISOString(),
+      date: formattedDate(),
       email: email,
       rating: selectedScore,
       g2Clicked: 'No'
@@ -470,8 +477,8 @@
 
   // When the user actually clicks through to leave a G2 review, mark it as Yes in the sheet
   document.getElementById('g2-review-btn').addEventListener('click', function() {
-    if (currentSubmissionId) {
-      logToSheet({ id: currentSubmissionId, updateG2: 'Yes' });
+    if (currentSubmissionEmail) {
+      logToSheet({ email: currentSubmissionEmail, updateG2: 'Yes' });
     }
   });
 
@@ -496,10 +503,8 @@
     errorMsg.style.display = 'none';
     emailErrorMsg.style.display = 'none';
 
-    const submissionId = 'sub_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
     logToSheet({
-      id: submissionId,
-      date: new Date().toISOString(),
+      date: formattedDate(),
       email: email,
       rating: selectedScore,
       g2Clicked: 'No'
