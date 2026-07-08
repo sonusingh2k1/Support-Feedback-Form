@@ -213,54 +213,30 @@
     margin: 0;
     line-height: 1.5;
   }
-  #g2-modal-overlay {
+  #g2-inline-state {
     display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(26, 26, 26, 0.45);
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 16px;
-  }
-  #g2-modal {
-    position: relative;
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 36px 32px;
-    max-width: 380px;
-    width: 100%;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    padding: 32px 8px;
   }
-  #g2-modal-close {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 28px;
-    height: 28px;
-    border: none;
+  #g2-inline-state .check-circle {
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    background: #f4f5f7;
-    color: #6b6b6b;
-    font-size: 18px;
-    line-height: 1;
-    cursor: pointer;
+    background: #fdf6e0;
+    color: #f2c230;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 16px;
   }
-  #g2-modal-close:hover {
-    background: #e8e9eb;
-    color: #1a1a1a;
-  }
-  #g2-modal-title {
+  #g2-inline-title {
     font-size: 18px;
     font-weight: 800;
     color: #1a1a1a;
     margin: 0 0 8px;
   }
-  #g2-modal-subtitle {
+  #g2-inline-subtitle {
     font-size: 14px;
     color: #6b6b6b;
     margin: 0 0 24px;
@@ -303,7 +279,7 @@
       <label class="field-label">How satisfied were you with the support you received? <span class="required">*</span></label>
       <div class="rating-boxes" id="rating-boxes"></div>
       <div class="rating-scale-labels">
-        <span>0 - Not at all satisfied</span>
+        <span>1 - Not at all satisfied</span>
         <span>10 - Extremely satisfied</span>
       </div>
     </div>
@@ -320,7 +296,7 @@
 
     <button type="submit" id="submit-btn" style="display:none;">Submit feedback <span class="arrow-circle">&rarr;</span></button>
     <button type="button" id="submit-rating-btn" style="display:none;">Submit Rating <span class="arrow-circle">&rarr;</span></button>
-    <p id="error-msg">Please select a rating from 0 to 10.</p>
+    <p id="error-msg">Please select a rating from 1 to 10.</p>
     <p id="email-error-msg">Please enter a valid email address.</p>
     <p id="confirm-msg">Thanks for your feedback!</p>
   </form>
@@ -329,34 +305,34 @@
     <div class="check-circle">&#10003;</div>
     <p id="thank-you-text">Thank You for your review, we'll work on your feedback</p>
   </div>
-</div>
-</div>
 
-<div id="g2-modal-overlay">
-  <div id="g2-modal">
-    <button id="g2-modal-close" aria-label="Close">&times;</button>
+  <div id="g2-inline-state">
     <div class="check-circle">&#10003;</div>
-    <p id="g2-modal-title">Thank you for your rating!</p>
-    <p id="g2-modal-subtitle">Could you take 5 mins to leave us a review?</p>
+    <p id="g2-inline-title">Thank you for your rating!</p>
+    <p id="g2-inline-subtitle">Could you take 5 mins to leave us a review?</p>
     <a id="g2-review-btn" href="#" target="_blank" rel="noopener">Leave Us a Review On G2</a>
   </div>
 </div>
+</div>
 
 <script>
-  // ---- Build the 0-10 rating boxes with a red -> yellow -> green gradient ----
+  // ---- Build the 1-10 rating boxes with a red -> yellow -> green gradient ----
   const RED = [231, 76, 60];
   const YELLOW = [242, 194, 48];
   const GREEN = [39, 174, 96];
+  const SCORE_MIN = 1;
+  const SCORE_MAX = 10;
+  const SCORE_MID = (SCORE_MIN + SCORE_MAX) / 2; // 5.5
 
   function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
 
   function colorForScore(i) {
     let c;
-    if (i <= 5) {
-      const t = i / 5;
+    if (i <= SCORE_MID) {
+      const t = (i - SCORE_MIN) / (SCORE_MID - SCORE_MIN);
       c = [0, 1, 2].map(k => lerp(RED[k], YELLOW[k], t));
     } else {
-      const t = (i - 5) / 5;
+      const t = (i - SCORE_MID) / (SCORE_MAX - SCORE_MID);
       c = [0, 1, 2].map(k => lerp(YELLOW[k], GREEN[k], t));
     }
     return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
@@ -405,7 +381,7 @@
     return `${dd}/${mm}/${yyyy}`;
   }
 
-  for (let i = 0; i <= 10; i++) {
+  for (let i = SCORE_MIN; i <= SCORE_MAX; i++) {
     const box = document.createElement('div');
     box.className = 'rating-box';
     box.textContent = i;
@@ -442,16 +418,6 @@
     ratingBoxesEl.appendChild(box);
   }
 
-  // Close the G2 modal via the X button or by clicking outside it
-  document.getElementById('g2-modal-close').addEventListener('click', function() {
-    document.getElementById('g2-modal-overlay').style.display = 'none';
-  });
-  document.getElementById('g2-modal-overlay').addEventListener('click', function(e) {
-    if (e.target === this) {
-      this.style.display = 'none';
-    }
-  });
-
   document.getElementById('submit-rating-btn').addEventListener('click', function() {
     const email = document.getElementById('email').value.trim();
     const emailErrorMsg = document.getElementById('email-error-msg');
@@ -472,7 +438,11 @@
     });
 
     document.getElementById('g2-review-btn').href = REDIRECT_CONFIG.g2Url;
-    document.getElementById('g2-modal-overlay').style.display = 'flex';
+
+    // Replace the form content in-card with the G2 review state (same pattern as the low-score thank-you state)
+    document.getElementById('feedback-form').style.display = 'none';
+    document.querySelector('.card-header').style.display = 'none';
+    document.getElementById('g2-inline-state').style.display = 'block';
   });
 
   // When the user actually clicks through to leave a G2 review, mark it as Yes in the sheet
