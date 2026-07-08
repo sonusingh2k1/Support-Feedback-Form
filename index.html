@@ -351,7 +351,7 @@
   // ---- Google Sheet logging config ----
   // Paste the Apps Script Web App URL here (see setup instructions).
   const SHEET_CONFIG = {
-    scriptUrl: 'https://script.google.com/macros/s/AKfycbzaY7SZlSYXY4kWSJSA_bJqdX-3QLE2-qyStjHUrrh6sJHDgNy9W-RwpaaZYuTxH9FSbw/exec'
+    scriptUrl: 'https://script.google.com/macros/s/AKfycbzRf-VBdg4LPv2ptCDewGIKh77vrg-zgnm0EeaPq2SmmXWf7bvTbjfftb6o2kwixW7niQ/exec'
   };
 
   let currentSubmissionEmail = null;
@@ -434,10 +434,9 @@
       date: formattedDate(),
       email: email,
       rating: selectedScore,
+      reason: '',
       g2Clicked: 'No'
     });
-
-    document.getElementById('g2-review-btn').href = REDIRECT_CONFIG.g2Url;
 
     // Replace the form content in-card with the G2 review state (same pattern as the low-score thank-you state)
     document.getElementById('feedback-form').style.display = 'none';
@@ -473,19 +472,17 @@
     errorMsg.style.display = 'none';
     emailErrorMsg.style.display = 'none';
 
+    const reason = document.getElementById('reason').value.trim();
+
     logToSheet({
       date: formattedDate(),
       email: email,
       rating: selectedScore,
+      reason: reason,
       g2Clicked: 'No'
     });
 
-    const data = {
-      satisfaction: selectedScore,
-      reason: document.getElementById('reason').value
-    };
-
-    console.log('Form submitted:', data);
+    console.log('Form submitted:', { satisfaction: selectedScore, reason: reason });
 
     // Submit button is only visible for scores below 8, so just show the thank-you state
     document.getElementById('feedback-form').style.display = 'none';
