@@ -20,26 +20,10 @@
     align-items: center;
     gap: 10px;
   }
-  .topbar .logo-dots {
-    display: inline-grid;
-    grid-template-columns: repeat(2, 6px);
-    grid-template-rows: repeat(2, 6px);
-    gap: 3px;
-  }
-  .topbar .logo-dots span {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #1a1a1a;
-  }
-  .topbar .logo-dots span:nth-child(2) {
-    background: #f2c230;
-  }
-  .topbar .logo-text {
-    font-size: 24px;
-    font-weight: 800;
-    color: #1a1a1a;
-    letter-spacing: -0.5px;
+  .topbar .logo-img {
+    height: 32px;
+    width: auto;
+    display: block;
   }
   .page-wrap {
     display: flex;
@@ -97,55 +81,38 @@
     color: #888;
     font-weight: 400;
   }
-  .radio-group {
+  .rating-boxes {
     display: flex;
-    gap: 10px;
+    gap: 6px;
   }
-  .radio-option {
+  .rating-box {
     flex: 1;
+    aspect-ratio: 1 / 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    border: 1.5px solid #e2e2e2;
-    border-radius: 10px;
-    padding: 10px;
-    cursor: pointer;
+    border-radius: 8px;
     font-size: 14px;
-    font-weight: 600;
-    transition: border-color 0.15s, background 0.15s;
+    font-weight: 700;
+    cursor: pointer;
+    border: 2px solid transparent;
+    color: #fff;
+    transition: transform 0.1s, border-color 0.15s;
   }
-  .radio-option:hover {
-    border-color: #f2c230;
+  .rating-box:hover {
+    transform: translateY(-2px);
   }
-  .radio-option input {
-    accent-color: #f2c230;
-  }
-  .radio-option.selected {
-    border-color: #f2c230;
-    background: #fdf6e0;
-  }
-  .rating-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  input[type="range"] {
-    flex: 1;
-    accent-color: #f2c230;
-  }
-  .rating-value {
-    font-size: 16px;
-    font-weight: 600;
-    min-width: 24px;
-    text-align: center;
+  .rating-box.selected {
+    border-color: #1a1a1a;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   }
   .rating-scale-labels {
     display: flex;
     justify-content: space-between;
     font-size: 12px;
     color: #888;
-    margin-top: 4px;
+    margin-top: 8px;
   }
   textarea {
     width: 100%;
@@ -230,12 +197,61 @@
     margin: 0;
     line-height: 1.5;
   }
+  #g2-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 26, 0.45);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+  }
+  #g2-modal {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 36px 32px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  #g2-modal-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0 0 8px;
+  }
+  #g2-modal-subtitle {
+    font-size: 14px;
+    color: #6b6b6b;
+    margin: 0 0 24px;
+    line-height: 1.5;
+  }
+  #g2-review-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    box-sizing: border-box;
+  }
+  #g2-review-btn:hover {
+    background: #1d4ed8;
+  }
 </style>
 </head>
 <body>
 <div class="topbar">
-  <span class="logo-dots"><span></span><span></span><span></span><span></span></span>
-  <span class="logo-text">emitrr</span>
+  <a href="https://emitrr.com/" target="_blank" rel="noopener">
+    <img src="https://wp-cdn.emitrr.com/uploads/2020/04/logo-emitrr.webp" alt="Emitrr" class="logo-img">
+  </a>
 </div>
 <div class="page-wrap">
 <div class="card">
@@ -246,39 +262,22 @@
   </div>
   <form id="feedback-form">
     <div class="field">
-      <label class="field-label">Was your issue fully resolved? <span class="required">*</span></label>
-      <div class="radio-group">
-        <label class="radio-option" data-option>
-          <input type="radio" name="resolved" value="Yes"> Yes
-        </label>
-        <label class="radio-option" data-option>
-          <input type="radio" name="resolved" value="Partially"> Partially
-        </label>
-        <label class="radio-option" data-option>
-          <input type="radio" name="resolved" value="No"> No
-        </label>
-      </div>
-    </div>
-
-    <div class="field">
       <label class="field-label">How satisfied were you with the support you received? <span class="required">*</span></label>
-      <div class="rating-row">
-        <input type="range" id="satisfaction" name="satisfaction" min="0" max="10" step="1" value="5" required>
-        <span class="rating-value" id="satisfaction-out">5</span>
-      </div>
+      <div class="rating-boxes" id="rating-boxes"></div>
       <div class="rating-scale-labels">
         <span>0 - Not at all satisfied</span>
         <span>10 - Extremely satisfied</span>
       </div>
     </div>
 
-    <div class="field">
+    <div class="field" id="reason-field" style="display:none;">
       <label class="field-label">What was the reason for your rating? <span class="optional">(optional)</span></label>
       <textarea id="reason" name="reason" placeholder="Tell us more about your experience"></textarea>
     </div>
 
-    <button type="submit">Submit feedback <span class="arrow-circle">&rarr;</span></button>
-    <p id="error-msg">Please select whether your issue was resolved.</p>
+    <button type="submit" id="submit-btn" style="display:none;">Submit feedback <span class="arrow-circle">&rarr;</span></button>
+    <button type="button" id="submit-rating-btn" style="display:none;">Submit Rating <span class="arrow-circle">&rarr;</span></button>
+    <p id="error-msg">Please select a rating from 0 to 10.</p>
     <p id="confirm-msg">Thanks for your feedback!</p>
   </form>
 
@@ -289,32 +288,90 @@
 </div>
 </div>
 
-<script>
-  const slider = document.getElementById('satisfaction');
-  const out = document.getElementById('satisfaction-out');
-  slider.addEventListener('input', () => { out.textContent = slider.value; });
+<div id="g2-modal-overlay">
+  <div id="g2-modal">
+    <div class="check-circle">&#10003;</div>
+    <p id="g2-modal-title">Thank you for your rating!</p>
+    <p id="g2-modal-subtitle">Could you take 5 mins to leave us a review?</p>
+    <a id="g2-review-btn" href="#" target="_blank" rel="noopener">Leave Us a Review On G2</a>
+  </div>
+</div>
 
-  document.querySelectorAll('.radio-option').forEach(opt => {
-    opt.addEventListener('click', () => {
-      document.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
-      opt.classList.add('selected');
-    });
-  });
+<script>
+  // ---- Build the 0-10 rating boxes with a red -> yellow -> green gradient ----
+  const RED = [231, 76, 60];
+  const YELLOW = [242, 194, 48];
+  const GREEN = [39, 174, 96];
+
+  function lerp(a, b, t) { return Math.round(a + (b - a) * t); }
+
+  function colorForScore(i) {
+    let c;
+    if (i <= 5) {
+      const t = i / 5;
+      c = [0, 1, 2].map(k => lerp(RED[k], YELLOW[k], t));
+    } else {
+      const t = (i - 5) / 5;
+      c = [0, 1, 2].map(k => lerp(YELLOW[k], GREEN[k], t));
+    }
+    return `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+  }
+
+  let selectedScore = null;
+  const ratingBoxesEl = document.getElementById('rating-boxes');
 
   // ---- Score-based redirect config ----
   const REDIRECT_CONFIG = {
     highScoreMin: 8,   // 8, 9, or 10 -> send to G2 review page
-    g2Url: 'https://www.g2.com/products/emitrr/review_modalities/new',
+    g2Url: 'https://www.g2.com/products/emitrr/reviews',
     redirectDelayMs: 600 // brief pause before sending high scorers to G2
   };
 
+  for (let i = 0; i <= 10; i++) {
+    const box = document.createElement('div');
+    box.className = 'rating-box';
+    box.textContent = i;
+    box.style.background = colorForScore(i);
+    box.dataset.score = i;
+    box.addEventListener('click', () => {
+      selectedScore = i;
+      document.querySelectorAll('.rating-box').forEach(b => b.classList.remove('selected'));
+      box.classList.add('selected');
+
+      const reasonField = document.getElementById('reason-field');
+      const submitBtn = document.getElementById('submit-btn');
+      const submitRatingBtn = document.getElementById('submit-rating-btn');
+      const errorMsg = document.getElementById('error-msg');
+      errorMsg.style.display = 'none';
+      document.getElementById('confirm-msg').style.display = 'none';
+
+      if (selectedScore >= REDIRECT_CONFIG.highScoreMin) {
+        // High score: hide reason/feedback-submit, show a dedicated "Submit Rating" button
+        reasonField.style.display = 'none';
+        submitBtn.style.display = 'none';
+        submitRatingBtn.style.display = 'flex';
+      } else {
+        // Lower score: reveal the reason box and feedback submit button
+        reasonField.style.display = 'block';
+        submitBtn.style.display = 'flex';
+        submitRatingBtn.style.display = 'none';
+      }
+    });
+    ratingBoxesEl.appendChild(box);
+  }
+
+  document.getElementById('submit-rating-btn').addEventListener('click', function() {
+    console.log('Rating submitted:', { satisfaction: selectedScore });
+    document.getElementById('g2-review-btn').href = REDIRECT_CONFIG.g2Url;
+    document.getElementById('g2-modal-overlay').style.display = 'flex';
+  });
+
   document.getElementById('feedback-form').addEventListener('submit', function(e) {
     e.preventDefault();
-    const resolved = document.querySelector('input[name="resolved"]:checked');
     const errorMsg = document.getElementById('error-msg');
     const confirmMsg = document.getElementById('confirm-msg');
 
-    if (!resolved) {
+    if (selectedScore === null) {
       errorMsg.style.display = 'block';
       confirmMsg.style.display = 'none';
       return;
@@ -322,28 +379,17 @@
 
     errorMsg.style.display = 'none';
 
-    const score = parseInt(slider.value, 10);
     const data = {
-      resolved: resolved.value,
-      satisfaction: score,
+      satisfaction: selectedScore,
       reason: document.getElementById('reason').value
     };
 
     console.log('Form submitted:', data);
 
-    if (score >= REDIRECT_CONFIG.highScoreMin) {
-      // High score: brief thank-you, then off to leave a G2 review
-      confirmMsg.textContent = 'Thanks! Taking you to leave a review...';
-      confirmMsg.style.display = 'block';
-      setTimeout(() => {
-        window.location.href = REDIRECT_CONFIG.g2Url;
-      }, REDIRECT_CONFIG.redirectDelayMs);
-    } else {
-      // Lower score: replace the form content with the thank-you message
-      document.getElementById('feedback-form').style.display = 'none';
-      document.querySelector('.card-header').style.display = 'none';
-      document.getElementById('thank-you-state').style.display = 'block';
-    }
+    // Submit button is only visible for scores below 8, so just show the thank-you state
+    document.getElementById('feedback-form').style.display = 'none';
+    document.querySelector('.card-header').style.display = 'none';
+    document.getElementById('thank-you-state').style.display = 'block';
   });
 </script>
 </body>
